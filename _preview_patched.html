@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nocturne Coffee | London</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --text-light: #e5e5e5;
+            --accent-copper: #c88d65;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .serif {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        /* Ambient Grain Animation */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            animation: grain-shift 8s steps(10) infinite;
+        }
+
+        @keyframes grain-shift {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-5%, -5%); }
+            20% { transform: translate(-10%, 5%); }
+            30% { transform: translate(5%, -10%); }
+            40% { transform: translate(-5%, 15%); }
+            50% { transform: translate(-10%, 5%); }
+            60% { transform: translate(15%, 0); }
+            70% { transform: translate(0, 10%); }
+            80% { transform: translate(-15%, 0); }
+            90% { transform: translate(10%, 5%); }
+        }
+
+        /* Utilities */
+        .clip-text-image {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: url('https://images.unsplash.com/photo-1610632380989-680fe40816c6?q=80&w=2564&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hover-underline-animation {
+            display: inline-block;
+            position: relative;
+        }
+        .hover-underline-animation::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 1px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--accent-copper);
+            transform-origin: bottom right;
+            transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
+        }
+        .hover-underline-animation:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Reveal Animations */
+        .reveal-text {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-text.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .image-reveal {
+            clip-path: inset(100% 0 0 0);
+            transition: clip-path 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .image-reveal.active {
+            clip-path: inset(0 0 0 0);
+        }
+
+        /* Product Card Hover */
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+        .product-card:hover .add-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Cart Drawer */
+        .cart-drawer {
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .cart-drawer.open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-orange-900 selection:text-white">
+
+    <!-- Ambient Grain -->
+    <div class="grain"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 top-0 left-0 px-6 py-6 flex justify-between items-center mix-blend-difference text-white">
+        <div class="text-xl tracking-widest font-bold uppercase serif cursor-pointer hover:text-orange-200 transition-colors duration-300">
+            Nocturne.
+        </div>
+        <div class="flex items-center gap-8">
+            <div class="hidden md:flex gap-8 text-xs tracking-widest uppercase">
+                <a href="#shop" class="hover-underline-animation">Shop</a>
+                <a href="#about" class="hover-underline-animation">Philosophy</a>
+                <a href="#location" class="hover-underline-animation">Location</a>
+            </div>
+            <button id="cart-btn" class="relative group">
+                <span class="text-xs uppercase tracking-widest group-hover:text-orange-200 transition-colors">Cart (<span id="cart-count">0</span>)</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Shopping Cart Drawer -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-500"></div>
+    <aside id="cart-drawer" class="cart-drawer fixed top-0 right-0 h-full w-full md:w-[450px] bg-[#0f0f0f] z-50 border-l border-white/10 flex flex-col">
+        <div class="p-8 flex justify-between items-center border-b border-white/10">
+            <h2 class="text-2xl serif font-light text-white">Your Selection</h2>
+            <button id="close-cart" class="text-white/50 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6">
+            <!-- Items injected via JS -->
+            <div id="empty-cart-msg" class="h-full flex flex-col items-center justify-center text-white/30">
+                <p class="uppercase tracking-widest text-sm">Your cart is empty</p>
+            </div>
+        </div>
+
+        <div class="p-8 border-t border-white/10 bg-[#0f0f0f]">
+            <div class="flex justify-between items-end mb-6">
+                <span class="text-sm text-white/50 uppercase tracking-widest">Total</span>
+                <span id="cart-total" class="text-3xl serif">£0.00</span>
+            </div>
+            <button class="w-full bg-white text-black py-4 uppercase tracking-[0.2em] text-xs font-bold hover:bg-[#c88d65] hover:text-white transition-colors duration-300">
+                Checkout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=3871&auto=format&fit=crop" 
+                 alt="Coffee texture" 
+                 class="w-full h-full object-cover opacity-40 scale-110 motion-safe:animate-[pulse_10s_ease-in-out_infinite]">
+            <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+            <p class="text-[#c88d65] uppercase tracking-[0.4em] text-xs mb-6 reveal-text">Established in Shoreditch, 2018</p>
+            <h1 class="text-6xl md:text-8xl lg:text-9xl font-bold leading-[0.9] mb-8 text-white mix-blend-overlay reveal-text" style="transition-delay: 100ms;">
+                Darkness <br/> <span class="italic font-light text-white/80">Redefined</span>
+            </h1>
+            <p class="text-white/60 max-w-md mx-auto leading-relaxed text-sm md:text-base reveal-text" style="transition-delay: 200ms;">
+                Small-batch specialty coffee roasted in the heart of East London. 
+                For those who find clarity in the depths of a cup.
+            </p>
+            <div class="mt-12 reveal-text" style="transition-delay: 300ms;">
+                <a href="#shop" class="inline-block border border-white/20 px-8 py-4 text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-300">
+                    Discover Blends
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Philosophy Section -->
+    <section id="about" class="py-32 px-6 md:px-12 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+        <div class="relative">
+            <div class="image-reveal w-full aspect-[3/4] overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1511537632536-b7a48965ce4a?q=80&w=1548&auto=format&fit=crop" alt="Pour over coffee" class="w-full h-full object-cover">
+            </div>
+            <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-[#c88d65] rounded-full blur-[80px] opacity-20"></div>
+        </div>
+        <div class="flex flex-col justify-center space-y-8">
+            <h2 class="text-4xl md:text-6xl serif leading-tight reveal-text">
+                The Art of <br><span class="text-[#c88d65]">Extraction.</span>
+            </h2>
+            <p class="text-white/60 leading-relaxed reveal-text">
+                We believe coffee is more than a routine; it is a ritual. Sourcing beans from the highest altitude farms, we roast in small batches at our Shoreditch roastery to preserve the delicate, volatile aromatics that make each origin unique.
+            </p>
+            <div class="grid grid-cols-2 gap-8 pt-8 border-t border-white/10 reveal-text">
+                <div>
+                    <span class="block text-3xl serif mb-1">03</span>
+                    <span class="text-xs uppercase tracking-widest text-white/40">Origins</span>
+                </div>
+                <div>
+                    <span class="block text-3xl serif mb-1">100%</span>
+                    <span class="text-xs uppercase tracking-widest text-white/40">Arabica</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop Section -->
+    <section id="shop" class="py-32 bg-[#0f0f0f] relative">
+        <div class="px-6 md:px-12 max-w-8xl mx-auto">
+            <div class="flex justify-between items-end mb-20">
+                <h2 class="text-5xl md:text-7xl serif reveal-text">Shop <span class="italic font-light text-white/40">Origins</span></h2>
+                <div class="hidden md:block w-32 h-[1px] bg-white/20 mb-6"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Product 1 -->
+                <div class="group product-card cursor-pointer reveal-text" data-id="1" data-name="Nocturne Blend" data-price="16.00" data-img="https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=2670&auto=format&fit=crop">
+                    <div class="relative aspect-[4/5] bg-[#1a1a1a] overflow-hidden mb-6">
+                        <img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=2670&auto=format&fit=crop" class="product-img w-full h-full object-cover transition-transform duration-700 ease-out opacity-80 group-hover:opacity-100" alt="Coffee Bag">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
+                        <button class="add-btn absolute bottom-6 right-6 bg-white text-black w-12 h-12 flex items-center justify-center rounded-full opacity-0 translate-y-4 transition-all duration-300 hover:bg-[#c88d65] hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </button>
+                        <div class="absolute top-4 left-4">
+                            <span class="bg-white/10 backdrop-blur px-3 py-1 text-[10px] uppercase tracking-widest text-white">Signature</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl serif">Nocturne Blend</h3>
+                            <p class="text-xs text-white/50 mt-1">Dark Chocolate, Molasses, Smoke</p>
+                        </div>
+                        <span class="serif text-lg">£16.00</span>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="group product-card cursor-pointer reveal-text" style="transition-delay: 100ms;" data-id="2" data-name="Ethiopian Yirgacheffe" data-price="19.00" data-img="https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?q=80&w=2670&auto=format&fit=crop">
+                    <div class="relative aspect-[4/5] bg-[#1a1a1a] overflow-hidden mb-6">
+                        <img src="https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?q=80&w=2670&auto=format&fit=crop" class="product-img w-full h-full object-cover transition-transform duration-700 ease-out opacity-80 group-hover:opacity-100" alt="Coffee Bag">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
+                        <button class="add-btn absolute bottom-6 right-6 bg-white text-black w-12 h-12 flex items-center justify-center rounded-full opacity-0 translate-y-4 transition-all duration-300 hover:bg-[#c88d65] hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl serif">Ethiopian Yirgacheffe</h3>
+                            <p class="text-xs text-white/50 mt-1">Jasmine, Bergamot, Peach</p>
+                        </div>
+                        <span class="serif text-lg">£19.00</span>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="group product-card cursor-pointer reveal-text" style="transition-delay: 200ms;" data-id="3" data-name="Colombia Huila" data-price="17.50" data-img="https://images.unsplash.com/photo-1585644198539-75db25c04df4?q=80&w=2669&auto=format&fit=crop">
+                    <div class="relative aspect-[4/5] bg-[#1a1a1a] overflow-hidden mb-6">
+                        <img src="https://images.unsplash.com/photo-1585644198539-75db25c04df4?q=80&w=2669&auto=format&fit=crop" class="product-img w-full h-full object-cover transition-transform duration-700 ease-out opacity-80 group-hover:opacity-100" alt="Coffee Bag">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
+                        <button class="add-btn absolute bottom-6 right-6 bg-white text-black w-12 h-12 flex items-center justify-center rounded-full opacity-0 translate-y-4 transition-all duration-300 hover:bg-[#c88d65] hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl serif">Colombia Huila</h3>
+                            <p class="text-xs text-white/50 mt-1">Caramel, Red Apple, Citrus</p>
+                        </div>
+                        <span class="serif text-lg">£17.50</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Location / Visit -->
+    <section id="location" class="py-32 px-6 relative overflow-hidden">
+        <!-- Decorative Map Background -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/London_street_map_1800.jpg/2048px-London_street_map_1800.jpg'); background-size: cover; filter: grayscale(1) invert(1);"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent"></div>
+
+        <div class="max-w-4xl mx-auto relative z-10 text-center space-y-8">
+            <p class="uppercase tracking-[0.3em] text-[#c88d65] text-xs reveal-text">Visit Us</p>
+            <h2 class="text-5xl md:text-8xl serif reveal-text">142 Brick Lane</h2>
+            <p class="text-xl md:text-2xl text-white/60 font-light reveal-text">Shoreditch, London E1 6RU</p>
+            <div class="flex flex-col md:flex-row justify-center gap-8 md:gap-16 pt-8 text-sm text-white/40 reveal-text">
+                <div>
+                    <strong class="block text-white mb-2 uppercase tracking-widest">Mon - Fri</strong>
+                    07:00 — 18:00
+                </div>
+                <div>
+                    <strong class="block text-white mb-2 uppercase tracking-widest">Sat - Sun</strong>
+                    08:00 — 19:00
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-white/10 bg-black">
+        <div class="max-w-8xl mx-auto flex flex-col md:flex-row justify-between items-end gap-8">
+            <div>
+                <h4 class="text-2xl serif mb-4">Nocturne.</h4>
+                <p class="text-xs text-white/30 uppercase tracking-widest">© 2024 Nocturne Coffee London</p>
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="text-white/40 hover:text-white transition-colors">Instagram</a>
+                <a href="#" class="text-white/40 hover:text-white transition-colors">Twitter</a>
+                <a href="#" class="text-white/40 hover:text-white transition-colors">Mail</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Shopping Cart Logic ---
+        const cart = {
+            items: [],
+            total: 0,
+            addItem(id, name, price, img) {
+                const existingItem = this.items.find(item => item.id === id);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    this.items.push({ id, name, price, img, quantity: 1 });
+                }
+                this.updateTotal();
+                this.render();
+                openCart();
+            },
+            removeItem(id) {
+                this.items = this.items.filter(item => item.id !== id);
+                this.updateTotal();
+                this.render();
+            },
+            updateQuantity(id, change) {
+                const item = this.items.find(item => item.id === id);
+                if (item) {
+                    item.quantity += change;
+                    if (item.quantity <= 0) this.removeItem(id);
+                }
+                this.updateTotal();
+                this.render();
+            },
+            updateTotal() {
+                this.total = this.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                document.getElementById('cart-total').innerText = '£' + this.total.toFixed(2);
+                const count = this.items.reduce((acc, item) => acc + item.quantity, 0);
+                document.getElementById('cart-count').innerText = count;
+            },
+            render() {
+                const container = document.getElementById('cart-items');
+                if (this.items.length === 0) {
+                    container.innerHTML = `
+                        <div class="h-full flex flex-col items-center justify-center text-white/30">
+                             <p class="uppercase tracking-widest text-sm">Your cart is empty</p>
+                        </div>`;
+                    return;
+                }
+                
+                container.innerHTML = this.items.map(item => `
+                    <div class="flex gap-4 items-center bg-white/5 p-3 rounded border border-white/5 animate-fade-in">
+                        <img src="${item.img}" class="w-16 h-16 object-cover rounded opacity-80" alt="${item.name}">
+                        <div class="flex-1">
+                            <h4 class="serif text-sm">${item.name}</h4>
+                            <p class="text-xs text-white/50">£${item.price}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="cart.updateQuantity('${item.id}', -1)" class="text-white/40 hover:text-white">-</button>
+                            <span class="text-sm">${item.quantity}</span>
+                            <button onclick="cart.updateQuantity('${item.id}', 1)" class="text-white/40 hover:text-white">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        };
+
+        // --- UI Interactions ---
+        const cartDrawer = document.getElementById('cart-drawer');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const cartBtn = document.getElementById('cart-btn');
+        const closeCartBtn = document.getElementById('close-cart');
+
+        function openCart() {
+            cartDrawer.classList.add('open');
+            cartOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeCart() {
+            cartDrawer.classList.remove('open');
+            cartOverlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        cartBtn.addEventListener('click', openCart);
+        closeCartBtn.addEventListener('click', closeCart);
+        cartOverlay.addEventListener('click', closeCart);
+
+        // Add to Cart Listeners
+        document.querySelectorAll('.add-btn, .product-card').forEach(el => {
+            el.addEventListener('click', (e) => {
+                // prevent bubbling if clicking specific parts, though covering card for UX
+                // Using dataset from the card itself
+                const card = e.currentTarget.closest('.product-card') || e.currentTarget;
+                const { id, name, price, img } = card.dataset;
+                cart.addItem(id, name, parseFloat(price), img);
+            });
+        });
+
+        // --- Scroll Reveal Animations ---
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: "0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-text, .image-reveal').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Parallax Effect for Hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const heroText = document.querySelector('header h1');
+            if(heroText) {
+                heroText.style.transform = `translateY(${scrolled * 0.2}px)`;
+                heroText.style.opacity = 1 - (scrolled / 700);
+            }
+        });
+
+    </script>
+
+<script>
+  let inspectorMode = false;
+  let hoveredElement = null;
+  let selectedElement = null;
+  
+  window.addEventListener('message', (event) => {
+    if (event.data?.type === 'SET_INSPECTOR_MODE') {
+      inspectorMode = event.data.enabled;
+      document.body.style.cursor = inspectorMode ? 'crosshair' : 'default';
+    }
+    
+    if (event.data?.type === 'LOCAL_UPDATE' && selectedElement) {
+      const update = event.data.update;
+      
+      if (update.text !== undefined) {
+        selectedElement.innerText = update.text;
+      }
+      
+      if (update.styles) {
+        Object.entries(update.styles).forEach(([prop, value]) => {
+          selectedElement.style[prop] = value;
+        });
+      }
+    }
+  });
+  
+  document.addEventListener('mouseover', (e) => {
+    if (!inspectorMode) return;
+    if (hoveredElement && hoveredElement !== selectedElement) {
+      hoveredElement.style.outline = '';
+    }
+    hoveredElement = e.target;
+    if (hoveredElement !== selectedElement) {
+      hoveredElement.style.outline = '2px solid #06b6d4';
+    }
+  });
+  
+  document.addEventListener('mouseout', (e) => {
+    if (!inspectorMode || !hoveredElement) return;
+    if (hoveredElement !== selectedElement) {
+      hoveredElement.style.outline = '';
+    }
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (!inspectorMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (selectedElement) {
+      selectedElement.style.outline = '';
+    }
+    
+    const el = e.target;
+    selectedElement = el;
+    el.style.outline = '3px solid #06b6d4';
+    
+    const rect = el.getBoundingClientRect();
+    const styles = window.getComputedStyle(el);
+    
+    window.parent.postMessage({
+      type: 'ELEMENT_SELECTED',
+      element: {
+        tagName: el.tagName.toLowerCase(),
+        text: el.innerText?.substring(0, 500) || '',
+        className: el.className || '',
+        styles: {
+          color: styles.color,
+          backgroundColor: styles.backgroundColor,
+          fontSize: styles.fontSize,
+          fontWeight: styles.fontWeight,
+          padding: styles.padding,
+          margin: styles.margin,
+        },
+        rect: {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        },
+        selector: el.id ? '#' + el.id : (el.className ? '.' + el.className.split(' ')[0] : el.tagName.toLowerCase())
+      }
+    }, '*');
+  }, true);
+</script>
+</body>
+</html>
