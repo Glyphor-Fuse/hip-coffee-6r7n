@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LuShoppingBag, LuX, LuPlus, LuMinus, LuCheck } from 'react-icons/lu';
 import { Reveal } from '@/components/motion/Reveal';
 import { SignatureEffect } from '@/components/effects/SignatureEffect';
-import { SignatureInteraction } from '@/components/effects/SignatureInteraction';
+
 
 // --- Types ---
 interface Product {
@@ -223,7 +223,7 @@ export default function Index() {
                       <img src={item.img} className="w-16 h-16 object-cover rounded opacity-80" alt={item.name} />
                       <div className="flex-1">
                         <h4 className="font-serif text-sm">{item.name}</h4>
-                        <p className="text-xs text-white/50">£{item.price.toFixed(2)}</p>
+                        <p className="text-xs text-white/50 mt-1">£{item.price.toFixed(2)}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <button 
@@ -270,7 +270,7 @@ export default function Index() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]"></div>
         </div>
 
-        <SignatureInteraction type="parallax" className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
           <Reveal>
             <p className="text-[#c88d65] uppercase tracking-[0.4em] text-xs mb-6">Established in Shoreditch, 2018</p>
           </Reveal>
@@ -292,7 +292,7 @@ export default function Index() {
               </a>
             </div>
           </Reveal>
-        </SignatureInteraction>
+        </div>
       </header>
 
       {/* Philosophy Section */}
